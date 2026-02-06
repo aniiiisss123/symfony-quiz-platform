@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Welcome!{% endblock %}</title>
+
+    <!-- Add Font Awesome Kit -->
+    <script src="https://kit.fontawesome.com/your-kit-code.js" crossorigin="anonymous"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="{{ asset('admin/css/style.css') }}">
+    <!-- Add Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div class="admin-container flex min-h-screen bg-white">
+        <!-- Sidebar -->
+        <div class="sidebar w-1/5 bg-white text-gray-800 border-r border-gray-300 min-h-screen p-4">
+            {% include 'admin/sidebar.html.twig' %}
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content flex-1 bg-white p-6">
+            {% block content %}
+                {% include 'quiz_management.html.twig' %}
+            {% endblock %}
+        </div>
+    </div>
+</body>
+    <!-- Admin JS -->
+    <script src="{{ asset('admin/js/script.js') }}"></script>
+</html>

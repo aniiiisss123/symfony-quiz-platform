@@ -1,0 +1,272 @@
+{% block stylesheets %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .quiz-container {
+            max-width: 800px;
+            margin: 2rem auto;
+        }
+        .quiz-header {
+            background: linear-gradient(135deg, #4e73df, #2e59d9);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+        .timer {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .exercise-card {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        .options-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .options-list li {
+            padding: 0.75rem 1.25rem;
+            margin-bottom: 0.5rem;
+            background-color: #f8f9fa;
+            border-left: 4px solid #dee2e6;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .options-list li:hover {
+            background-color: #e9ecef;
+        }
+        .options-list li.selected {
+            background-color: #4e73df;
+            color: white;
+            border-left: 4px solid #2e59d9;
+        }
+        .submit-section {
+            text-align: center;
+            margin-top: 2rem;
+        }
+        .feedback {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            color: white;
+        }
+        .feedback.good {
+            background-color: #4caf50;
+        }
+        .feedback.average {
+            background-color: #ff9800;
+        }
+        .feedback.bad {
+            background-color: #f44336;
+        }
+        .correction {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 0.5rem;
+        }
+        .correct-answer {
+            color: #4caf50;
+            font-weight: bold;
+        }
+        .incorrect-answer {
+            color: #f44336;
+            font-weight: bold;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    {% include 'partials/navbareleve.html.twig' %}
+
+    <div class="quiz-container">
+        <div class="quiz-header">
+            <h1>{{ quiz.title }}</h1>
+            <p>{{ quiz.description }}</p>
+            {% if not feedback %}
+                <div class="timer" id="timer"></div>
+            {% endif %}
+        </div>
+
+        {% if feedback %}
+            <div class="feedback 
+                {% if totalScore >= requiredScore %}good{% elseif totalScore >= requiredScore / 2 %}average{% else %}bad{% endif %}">
+                <p><strong>Score:</strong> {{ totalScore }} / {{ requiredScore }}</p>
+                <p>{{ feedback }}</p>
+                {% if totalScore >= requiredScore %}
+                    <p><strong>Félicitations, Champion !</strong> Vous avez réussi ce quiz avec brio.</p>
+                {% else %}
+                    <p><strong>Ne vous découragez pas !</strong> Continuez à pratiquer et vous ferez mieux la prochaine fois.</p>
+                {% endif %}
+                <p><strong>Temps passé:</strong> {{ timeSpent }} secondes</p>
+            </div>
+
+            <h2>Corrections</h2>
+            {% for correction in corrections %}
+                <div class="correction">
+                    <p><strong>Question:</strong> {{ correction.question }}</p>
+                    <p><strong>Votre réponse:</strong> 
+                        <span class="{% if correction.isCorrect %}correct-answer{% else %}incorrect-answer{% endif %}">
+                            {{ correction.studentAnswer }}
+                        </span>
+                    </p>
+                    {% if not correction.isCorrect %}
+                        <p><strong>Réponse correcte:</strong> <span class="correct-answer">{{ correction.correctAnswer }}</span></p>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <a href="{{ path('app_quiz_list') }}" class="btn btn-secondary mt-4">Retour</a>
+        {% else %}
+            {{ form_start(form, {'attr': {'class': 'quiz-form'}}) }}
+
+            {% for exercice in exercises %}
+                <div class="exercise-card">
+                    <h3>Question {{ loop.index }}</h3>
+                    <p>{{ exercice.question }}</p>
+
+                    {% if exercice.imagePath %}
+                        <img src="{{ asset('assets/uploads/' ~ exercice.imagePath) }}" alt="Exercise Illustration"
+                             style="max-width: 100%; height: auto; margin-top: 10px;">
+                    {% endif %}
+
+                    <ul class="options-list" id="options-{{ exercice.id_e }}">
+                        {% for option in exercice.options|split(',') %}
+                            <li onclick="selectOption(this, {{ exercice.id_e }})" 
+                                data-value="{{ option|trim }}">
+                                <input type="radio" 
+                                       name="responses[{{ exercice.id_e }}]" 
+                                       id="option-{{ exercice.id_e }}-{{ loop.index }}" 
+                                       value="{{ option|trim }}"
+                                       required
+                                       class="hidden-radio">
+                                <label for="option-{{ exercice.id_e }}-{{ loop.index }}">
+                                    {{ option|trim }}
+                                </label>
+                            </li>
+                        {% else %}
+                            <div class="alert alert-warning">
+                                No options available for this question.
+                            </div>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endfor %}
+
+            <div class="submit-section">
+                <button type="submit" class="btn btn-primary" onclick="stopTimer()">
+                    <i class="fas fa-paper-plane me-2"></i>
+                    Soumettre le Quiz
+                </button>
+            </div>
+
+            {{ form_end(form) }}
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const isSubmitted = {{ feedback is not empty ? 'true' : 'false' }};
+        let quizDuration = {{ quiz.duration }} * 60; // Quiz duration in seconds
+        let startTime;
+        let timerInterval;
+        let timeSpent = 0;
+
+        if (!isSubmitted) {
+            startTimer();
+        }
+
+        function formatTime(seconds) {
+            const hrs = Math.floor(seconds / 3600);
+            const mins = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function startTimer() {
+            const timerElement = document.getElementById('timer');
+
+            const storedStartTime = localStorage.getItem('quizStartTime');
+            if (storedStartTime) {
+                startTime = parseInt(storedStartTime, 10);
+            } else {
+                startTime = new Date().getTime();
+                localStorage.setItem('quizStartTime', startTime);
+            }
+
+            timerInterval = setInterval(() => {
+                const currentTime = new Date().getTime();
+                timeSpent = Math.floor((currentTime - startTime) / 1000);
+                const remainingTime = Math.max(0, quizDuration - timeSpent);
+
+                const mins = Math.floor(remainingTime / 60);
+                const secs = remainingTime % 60;
+                timerElement.textContent = `Time Left: ${mins}:${secs < 10 ? '0' + secs : secs} | Time Spent: ${formatTime(timeSpent)}`;
+
+                if (remainingTime <= 0) {
+                    clearInterval(timerInterval);
+                    alert('Time is up! Your quiz will be submitted automatically.');
+                    submitQuiz();
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+            localStorage.removeItem('quizStartTime');
+            return timeSpent;
+        }
+
+        function selectOption(element, exerciseId) {
+            document.querySelectorAll(`#options-${exerciseId} li`).forEach(opt => {
+                opt.classList.remove('selected');
+            });
+
+            element.classList.add('selected');
+            const radioInput = element.querySelector('input[type="radio"]');
+            if (radioInput) {
+                radioInput.checked = true;
+            }
+        }
+
+        function submitQuiz() {
+            const timeSpentInput = document.createElement('input');
+            timeSpentInput.type = 'hidden';
+            timeSpentInput.name = 'timeSpent';
+            timeSpentInput.value = stopTimer();
+            document.querySelector('.quiz-form').appendChild(timeSpentInput);
+
+            const unanswered = Array.from(document.querySelectorAll('.exercise-card')).filter(card => {
+                return card.querySelector('input[type="radio"]:checked') === null;
+            });
+
+            if (unanswered.length > 0) {
+                alert(`Please answer all questions. You have ${unanswered.length} unanswered questions.`);
+                startTimer(); 
+                return false;
+            }
+
+            document.querySelector('.quiz-form').submit();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!isSubmitted) {
+                document.querySelector('.quiz-form').addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    submitQuiz();
+                });
+            }
+        });
+    </script>
+{% endblock %}

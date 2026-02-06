@@ -1,0 +1,21 @@
+{{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+    <div class="row g-3">
+        {% for field in form %}
+            {% if field.vars.name != '_token' %}
+                <div class="col-md-6">
+                    <div class="form-group mb-4">
+                        {{ form_label(field, null, {'label_attr': {'class': 'form-label fw-bold mb-2'}}) }}
+                        {{ form_widget(field, {'attr': {'class': 'form-control rounded-3' ~ (field.vars.required ? ' required' : '')}}) }}
+                        {{ form_errors(field) }}
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    <div class="form-actions text-end mt-4 pt-3 border-top">
+        <button type="submit" class="btn btn-primary px-4 py-2 rounded-pill">
+            <i class="fas fa-save me-2"></i>{{ button_label|default('Save') }}
+        </button>
+    </div>
+{{ form_end(form) }}

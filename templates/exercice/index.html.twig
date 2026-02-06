@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercice Index</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+    <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
+    
+    <style>
+    h1.mb-4 {
+    text-align: center; 
+    font-size: 2.5rem;  
+    font-weight: bold;  
+    color: #2c3e50;  
+    text-transform: uppercase; 
+    letter-spacing: 1px; 
+    margin-bottom: 30px; 
+    padding: 20px;       
+    background-color: #f1f1f1; 
+    border-radius: 10px; 
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+    }
+        .action-buttons .btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+            margin-right: 0.25rem;
+        }
+        .create-new-btn {
+            margin-top: 1.5rem;
+        }
+        .table-responsive {
+            overflow-x: auto;
+        }
+    </style>
+    
+    {% block stylesheets %}{% endblock %}
+</head>
+
+<body>
+    {% include 'partials/navbar.html.twig' %}
+
+    <div class="container py-4">
+        <h1 class="mb-4"">Exercises for Quiz: {{ quiz.title }}</h1>
+
+        <div class="mb-3">
+            <a href="{{ path('app_exercice_new', {'quiz_id': quiz.quiz_id}) }}" class="btn btn-success">
+                <i class="fas fa-plus"></i> Create New Exercise
+            </a>
+            <a href="{{ path('app_quiz_show', {'quiz_id': quiz.quiz_id}) }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Quiz
+            </a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Question</th>
+                        <th>Options</th>
+                        <th>Score</th>
+                        <th>Correct Answer</th>
+                        <th>Mandatory</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for exercice in exercices %}
+                    <tr>
+                        <td>{{ exercice.question }}</td>
+                        <td class="options-cell" title="{{ exercice.options }}">{{ exercice.options }}</td>
+                        <td>{{ exercice.score }} pts</td>
+                        <td>{{ exercice.getCorrectAnswer() }}</td>
+                        <td>{{ exercice.isMandatory ? 'Yes' : 'No' }}</td>
+                        <td class="action-buttons">
+                              <a href="{{ path('app_exercice_show', {'quiz_id': quiz.quiz_id, 'id_e': exercice.id_e})}}" class="btn btn-info btn-sm">
+                                <i class="fas fa-eye"></i> Show
+                            </a>
+                            <a href="{{ path('app_exercice_edit', {'quiz_id': quiz.quiz_id, 'id_e': exercice.id_e}) }}" 
+                               class="btn btn-primary btn-sm">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <form method="post" 
+                                  action="{{ path('app_exercice_delete', {'quiz_id': quiz.quiz_id, 'id_e': exercice.id_e}) }}" 
+                                  class="d-inline">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ exercice.id_e) }}">
+                                <button type="submit" class="btn btn-danger btn-sm" 
+                                        onclick="return confirm('Are you sure you want to delete this exercise?')">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center">No exercises found</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    </body>
+</html>

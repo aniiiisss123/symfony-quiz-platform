@@ -1,0 +1,96 @@
+{% extends 'admin/adminBase.html.twig' %}
+{% block title %}Quiz Management{% endblock %}
+
+{% block content %}
+<div class="bg-gray-100 min-h-screen px-6 py-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-blue-500 shadow-md rounded-lg p-6 hover:shadow-lg transition-shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h4 class="text-white text-sm uppercase tracking-wide font-semibold">Total Quizzes</h4>
+                    <p class="text-white text-3xl font-bold">{{ quizs|length }}</p>
+                </div>
+                <i class="fas fa-file-alt text-white text-4xl"></i>
+            </div>
+        </div>
+
+        <div class="bg-green-500 shadow-md rounded-lg p-6 hover:shadow-lg transition-shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h4 class="text-white text-sm uppercase tracking-wide font-semibold">Recent Quizzes</h4>
+                    <p class="text-white text-3xl font-bold">{{ recentQuizs }}</p>
+                </div>
+                <i class="fas fa-clock text-white text-4xl"></i>
+            </div>
+        </div>
+
+        <div class="bg-purple-500 shadow-md rounded-lg p-6 hover:shadow-lg transition-shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h4 class="text-white text-sm uppercase tracking-wide font-semibold">Average Score</h4>
+                    <p class="text-white text-3xl font-bold">{{ averageScore|number_format(2) }}</p>
+                </div>
+                <i class="fas fa-chart-bar text-white text-4xl"></i>
+            </div>
+        </div>
+
+        <div class="bg-yellow-500 shadow-md rounded-lg p-6 hover:shadow-lg transition-shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h4 class="text-white text-sm uppercase tracking-wide font-semibold">Total Exercises</h4>
+                    <p class="text-white text-3xl font-bold">{{ totalExercises }}</p>
+                </div>
+                <i class="fas fa-tasks text-white text-4xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white shadow rounded-lg overflow-hidden">
+        <div class="bg-blue-600 text-white px-6 py-4">
+            <h2 class="font-bold text-lg">Quizzes Overview</h2>
+        </div>
+        <div class="p-6 overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-blue-100">
+                        <th class="px-6 py-3 text-sm font-semibold text-gray-700 uppercase tracking-wider">ID</th>
+                        <th class="px-6 py-3 text-sm font-semibold text-gray-700 uppercase tracking-wider">Title</th>
+                        <th class="px-6 py-3 text-sm font-semibold text-gray-700 uppercase tracking-wider">Description</th>
+                        <th class="px-6 py-3 text-sm font-semibold text-gray-700 uppercase tracking-wider">Duration (min)</th>
+                        <th class="px-6 py-3 text-sm font-semibold text-gray-700 uppercase tracking-wider">Total Score</th>
+                        <th class="px-6 py-3 text-sm font-semibold text-gray-700 uppercase tracking-wider">Creation Date</th>
+                        <th class="px-6 py-3 text-sm font-semibold text-gray-700 uppercase tracking-wider">Author</th>
+                        <th class="px-6 py-3 text-sm font-semibold text-gray-700 uppercase tracking-wider">Exercises Count</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% if quizs is empty %}
+                        <tr>
+                            <td colspan="8" class="px-6 py-12 text-center text-gray-500">
+                                <i class="fas fa-folder-open text-4xl mb-4"></i>
+                                <p class="text-lg">No quizzes found</p>
+                                <p class="text-sm">Start by creating your first quiz!</p>
+                            </td>
+                        </tr>
+                    {% else %}
+                        {% for quiz in quizs %}
+                            <tr class="hover:bg-blue-50 transition-colors">
+                                <td class="px-6 py-4 font-medium text-gray-900">{{ quiz.quiz_id }}</td>
+                                <td class="px-6 py-4 font-medium text-gray-900">{{ quiz.title }}</td>
+                                <td class="px-6 py-4 text-gray-600">
+                                    {{ quiz.description|length > 50 ? quiz.description|slice(0, 50) ~ '...' : quiz.description }}
+                                </td>
+                                <td class="px-6 py-4 text-gray-600">{{ quiz.duration }}</td>
+                                <td class="px-6 py-4 text-gray-600">{{ quiz.totalscore }}</td>
+                                <td class="px-6 py-4 text-gray-600">{{ quiz.creationdate|date('M d, Y') }}</td>
+                                <td class="px-6 py-4 text-gray-600">{{ quiz.author }}</td>
+                                <td class="px-6 py-4 text-gray-600">{{ quiz.exercices|length }}</td>
+                            </tr>
+                        {% endfor %}
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
