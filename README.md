@@ -47,4 +47,5 @@ symfony-quiz-platform/
 1. **Cloner le dépôt**
 ```bash
 git clone https://github.com/aniiiisss123/symfony-quiz-platform.git
-cd symfony-quiz-platform
+## 👤 Author
+**Anis Saidi** - [GitHub](https://github.com/aniiiisss123)cd symfony-quiz-platform
